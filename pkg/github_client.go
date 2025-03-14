@@ -1,4 +1,4 @@
-// github.go
+// github_client.go
 package pkg
 
 import (
@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"slices"
 )
 
 func (c *Client) sendGETRequest(ctx context.Context, endpoint string) ([]byte, error) {
@@ -78,20 +79,33 @@ func (c *Client) FetchTreeSHA(ctx context.Context, commitSHA, repoOwner, repoNam
 	return response.Tree.SHA, nil
 }
 
-func (c *Client) FetchFileTree(ctx context.Context, treeSHA, repoOwner, repoName string) ([]TreeEntry, error) {
+func (c *Client) FetchFileTree(ctx context.Context, selectedFiles []string, treeSHA, repoOwner, repoName string) ([]TreeEntry, error) {
 	url := fmt.Sprintf("/%s/%s/git/trees/%s?recursive=1", repoOwner, repoName, treeSHA)
 
 	body, err := c.sendGETRequest(ctx, url)
 	if err != nil {
-		return nil, fmt.Errorf("error in sendGETRequest: %v", err)
+		return nil, fmt.Errorf("error in send GET Request: %v", err)
 	}
 
 	var response FileTreeResponse
 	if err := json.Unmarshal(body, &response); err != nil {
-		return nil, fmt.Errorf("error while parsing JSON: %v", err)
+		return nil, fmt.Errorf("error while parsing JSON: %w", err)
 	}
 
-	return response.Tree, nil
+	// return all files if selectedFiles is empty
+	if len(selectedFiles) == 0 {
+		return response.Tree, nil
+	}
+
+	responseTree := make([]TreeEntry, 0, len(response.Tree))
+
+	for _, treeEntry := range response.Tree {
+		if slices.Contains(selectedFiles, treeEntry.Path) {
+			responseTree = append(responseTree, treeEntry)
+		}
+	}
+
+	return responseTree, nil
 }
 
 func (c *Client) FetchFileContent(ctx context.Context, fileURL string) (string, error) {

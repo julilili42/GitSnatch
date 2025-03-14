@@ -12,6 +12,17 @@ func AskQuestion(question string) string {
 	return answer
 }
 
+func InfoText(message string) string {
+	var name string
+	prompt := &survey.Input{
+		Message: message,
+	}
+	survey.AskOne(prompt, &name, survey.WithIcons(func(icons *survey.IconSet) {
+		icons.Question.Text = "✓"
+	}))
+	return name
+}
+
 func MultiSelect(message string, options []string) []string {
 	selectedOptions := []string{}
 	prompt := &survey.MultiSelect{
