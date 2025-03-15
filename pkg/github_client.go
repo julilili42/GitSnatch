@@ -8,7 +8,18 @@ import (
 	"io"
 	"net/http"
 	"slices"
+	"time"
 )
+
+func NewClient(token string) *Client {
+	return &Client{
+		BaseURL: "https://api.github.com/repos",
+		Token:   token,
+		HTTPClient: &http.Client{
+			Timeout: 100 * time.Second,
+		},
+	}
+}
 
 func (c *Client) sendGETRequest(ctx context.Context, endpoint string) ([]byte, error) {
 	url := fmt.Sprintf("%s%s", c.BaseURL, endpoint)
