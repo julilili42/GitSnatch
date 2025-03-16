@@ -19,7 +19,7 @@ var fetchCmd = &cobra.Command{
 	Args:  cobra.MaximumNArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
 
-		var repoOwner, repoName string
+		var repoOwner, repoName, commitSHA string
 
 		if len(args) >= 1 {
 			repoOwner = args[0]
@@ -33,6 +33,15 @@ var fetchCmd = &cobra.Command{
 			repoName = pkg.AskQuestion("What is the name of the GitHub repo?")
 		}
 
+		if len(args) >= 3 {
+			commitSHA = args[2]
+		} else {
+			commitSHA = pkg.AskQuestion("Enter the commit SHA from the GitHub repository.")
+			if commitSHA == "" {
+				pkg.InfoText("No commit SHA entered, press ENTER to select latest commit.")
+			}
+		}
+
 		token := os.Getenv("GITHUB_TOKEN")
 		if token == "" {
 			log.Fatal("GITHUB_TOKEN environment variable not set")
@@ -42,7 +51,7 @@ var fetchCmd = &cobra.Command{
 		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
 		defer cancel()
 
-		fileTree, err := pkg.FetchRepositoryData(ctx, client, nil, repoOwner, repoName)
+		fileTree, err := pkg.FetchRepositoryData(ctx, client, nil, repoOwner, repoName, commitSHA)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -58,6 +67,11 @@ var fetchCmd = &cobra.Command{
 		if err := clipboard.WriteAll(finalContent); err != nil {
 			fmt.Println(err)
 			os.Exit(1)
+		}
+
+		if finalContent == "" {
+			pkg.InfoText("No content copied to clipboard.")
+			os.Exit(0)
 		}
 
 		pkg.InfoText("Copied to clipboard successfully.")

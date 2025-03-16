@@ -51,9 +51,18 @@ func (c *Client) sendGETRequest(ctx context.Context, endpoint string) ([]byte, e
 }
 
 func (c *Client) FetchLatestCommitSHA(ctx context.Context, repoOwner, repoName string) (string, error) {
-	url := fmt.Sprintf("/%s/%s/git/refs/heads/main", repoOwner, repoName)
+	branches := []string{"main", "master"}
+	var err error
+	var body []byte
 
-	body, err := c.sendGETRequest(ctx, url)
+	for _, branch := range branches {
+		url := fmt.Sprintf("/%s/%s/git/refs/heads/%s", repoOwner, repoName, branch)
+		body, err = c.sendGETRequest(ctx, url)
+		if err == nil {
+			break
+		}
+	}
+
 	if err != nil {
 		return "", fmt.Errorf("error in sendGETRequest: %v", err)
 	}
@@ -103,15 +112,15 @@ func (c *Client) FetchFileTree(ctx context.Context, selectedFiles []string, tree
 		return nil, fmt.Errorf("error while parsing JSON: %w", err)
 	}
 
-	// return all files if selectedFiles is empty
-	if len(selectedFiles) == 0 {
-		return response.Tree, nil
-	}
-
 	responseTree := make([]TreeEntry, 0, len(response.Tree))
 
 	for _, treeEntry := range response.Tree {
-		if slices.Contains(selectedFiles, treeEntry.Path) {
+		// only files not folders
+		if treeEntry.Type != "blob" {
+			continue
+		}
+
+		if len(selectedFiles) == 0 || slices.Contains(selectedFiles, treeEntry.Path) {
 			responseTree = append(responseTree, treeEntry)
 		}
 	}

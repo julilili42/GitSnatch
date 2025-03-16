@@ -9,13 +9,19 @@ import (
 	"sync"
 )
 
-func FetchRepositoryData(ctx context.Context, client *Client, selectedFiles []string, repoOwner, repoName string) ([]TreeEntry, error) {
-	commitSHA, err := client.FetchLatestCommitSHA(ctx, repoOwner, repoName)
-	if err != nil {
-		return nil, fmt.Errorf("error fetching latest commit SHA: %v", err)
+func FetchRepositoryData(ctx context.Context, client *Client, selectedFiles []string, repoOwner, repoName, commitSHA string) ([]TreeEntry, error) {
+
+	commit := commitSHA
+
+	if commitSHA == "" {
+		var err error
+		commit, err = client.FetchLatestCommitSHA(ctx, repoOwner, repoName)
+		if err != nil {
+			return nil, fmt.Errorf("error fetching latest commit SHA: %v", err)
+		}
 	}
 
-	treeSHA, err := client.FetchTreeSHA(ctx, commitSHA, repoOwner, repoName)
+	treeSHA, err := client.FetchTreeSHA(ctx, commit, repoOwner, repoName)
 	if err != nil {
 		return nil, fmt.Errorf("error fetching tree SHA: %v", err)
 	}
