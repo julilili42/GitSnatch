@@ -39,6 +39,10 @@ Interactive fetch:
 snatch
 ```
 
+## Example
+![output](https://github.com/user-attachments/assets/ca8d07e2-d3c8-481b-a95c-76a9e486c737)
+
+
 ## Configuration
 
 Requires a GitHub Personal Access Token with repo access:
