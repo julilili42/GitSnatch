@@ -11,16 +11,18 @@ GitSnatch is a fast and user-friendly CLI tool built in Go to copy the content o
 
 ## Installation
 
-Install GitSnatch via Go:
-
-```bash
-go install github.com/julilili42/GitSnatch@latest
-```
-
 Set your GitHub token:
 
 ```bash
 export GITHUB_TOKEN=your_token
+```
+
+Install GitSnatch:
+
+```bash
+git clone https://github.com/julilili42/GitSnatch.git
+cd GitSnatch
+./install.sh
 ```
 
 ## Usage
@@ -28,27 +30,13 @@ export GITHUB_TOKEN=your_token
 Fetch repository files:
 
 ```bash
-gitsnatch fetch [repoOwner] [repoName] [commitSHA]
+snatch [repoOwner] [repoName] [commitSHA]
 ```
 
 Interactive fetch:
 
 ```bash
-gitsnatch fetch
-```
-
-## Examples
-
-Interactive mode:
-
-```bash
-gitsnatch fetch
-```
-
-Explicit repository and commit:
-
-```bash
-gitsnatch fetch julilili42 GitSnatch f9c2f0a
+snatch
 ```
 
 ## Configuration
