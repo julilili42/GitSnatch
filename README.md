@@ -40,7 +40,10 @@ snatch
 ```
 
 ## Example
-![output](https://github.com/user-attachments/assets/ca8d07e2-d3c8-481b-a95c-76a9e486c737)
+
+![output](https://github.com/user-attachments/assets/fcc61bd3-1148-4a86-9876-9f20670e82df)
+
+
 
 
 ## Configuration
